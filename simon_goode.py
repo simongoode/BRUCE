@@ -95,7 +95,7 @@ POST_TRIGGER_DURATION = 2.0
 F_REF = 50.0  # Reference frequency for waveform
 
 # Nested sampling parameters
-N_LIVE = 140  # Number of live points (calibrated to match Bilby compression)
+N_LIVE = 1400  # Number of live points (calibrated to match Bilby compression)
 N_DELETE = int(N_LIVE * 0.5)  # Number of points to delete per iteration
 TERMINATION_DLOGZ = 0.1  # Terminate when remaining evidence < this fraction
 
