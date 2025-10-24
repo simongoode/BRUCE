@@ -11,3 +11,4 @@ fgivenx
 getdist
 tqdm
 bilby
+corner
