@@ -1,3 +1,4 @@
 .gitmodules
 .venv/
 results/
+__pycache__/
