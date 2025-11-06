@@ -1,4 +1,6 @@
 .gitmodules
 .venv/
 results/
+analyst_test/
+gemini-test.py
 __pycache__/
