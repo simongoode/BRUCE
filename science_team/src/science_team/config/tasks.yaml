@@ -1,0 +1,44 @@
+generation_task:
+  description: >
+    Execute the corner plot generation script using the 'Corner Plot Generation Tool'.
+    The script is located at '/home/sgoode/BRUCE/create_corner.py'.
+    You must invoke the tool with this exact path.
+  agent: plot_generator
+  expected_output: >
+    The absolute file path to the newly generated corner plot image, returned as a single,
+    unadorned string. The output MUST NOT contain any additional text, explanation, or
+    formatting. For example: '/path/to/project/outputs/bruce_corner.png'. Your final answer
+    should be exactly the output of the script, no additional text or formatting.
+
+analysis_task:
+  description: >    
+    You must analyze the corner plot image at the file path: '/home/sgoode/BRUCE/results/bruce_corner.png'.
+
+    **How to Interpret the Corner Plot:**
+    A corner plot is a matrix of plots used to visualize high-dimensional probability distributions.[1]
+    1.  **Diagonal Plots:** The plots along the diagonal of the matrix are one-dimensional (1D) histograms.
+        Each one shows the marginalized posterior probability distribution for a single parameter. The peak
+        of the histogram represents the most probable value for that parameter.
+    2.  **Off-Diagonal Plots:** The plots below the diagonal are two-dimensional (2D) contour plots.
+        Each one shows the joint posterior probability distribution for a pair of parameters, revealing any
+        correlations between them.
+
+    **Analytical Objective:**
+
+    Carefully scan all 1D and 2D posteriors for any abnormalities or scientifically interesting features.
+    These are critical for assessing the quality and implications of the analysis. Report these findings.
+    Look for:
+    - **Bimodality or Multimodality:** A 1D posterior with two or more distinct peaks. This can indicate
+      competing physical scenarios or issues with the analysis.
+    - **Strong Correlations/Degeneracies:** Highly elliptical or "banana-shaped" contours in the 2D plots.
+      This signifies that the parameters are strongly correlated and cannot be measured independently.
+    - **Prior Boundary Truncation:** A 1D posterior that is sharply cut off at the edge of its range.
+      This suggests that the chosen prior probability range was too restrictive and may be biasing the result.
+    - **Significant Non-Gaussian Shapes:** Any 1D distribution that deviates significantly from a simple
+      bell-curve shape, such as having long, heavy tails or sharp, narrow peaks.
+
+  agent: gw_analyst
+  expected_output: >
+    A concise, well-structured report consisting of a bulleted list detailing any identified abnormalities or noteworthy features.
+    If none are found, state "No significant abnormalities detected."
+    Do not use markdown formatting in your response.
