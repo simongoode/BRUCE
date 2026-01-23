@@ -1,0 +1,23 @@
+analyze_mass_posteriors:
+  description: >
+    You are analyzing gravitational wave parameter estimation results for round {round_number}.
+    
+    First, use the read_analysis_file tool to read the current PE report at {pe_report_path}
+    to understand the mass posteriors (M_c, q, m_1, m_2, chi_eff, eta) and their summary statistics.
+    
+    {previous_analyses}
+    
+    If there are previous analysis files listed above, use the read_analysis_file tool to read
+    them and incorporate insights from previous rounds into your analysis.
+    
+    Write a concise 2-3 sentence analysis focusing on:
+    - Key characteristics of the mass posteriors in this round
+    - Notable trends or patterns in the mass parameters
+    - Comparison with previous rounds (if available)
+    
+    IMPORTANT: You must use the write_file tool to save your analysis to: {analysis_file_path}
+    The analysis should be exactly 2-3 sentences. Use the write_file tool with the file_path
+    parameter set to {analysis_file_path} and the content parameter containing your analysis.
+  expected_output: >
+    A 2-3 sentence analysis of the mass posteriors saved to {analysis_file_path} using the write_file tool
+  agent: mass_expert

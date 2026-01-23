@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from crewai.flow import Flow, listen, start
 
 from bruce_flows.crews.parameter_expert_crew.parameter_expert_crew import ParameterExpertCrew
-from bruce_flows.tools.run_pe_tool import run_pe_script
+from bruce_flows.tools.run_pe_tool import _run_pe_script_impl
 
 
 class PEMassAnalysisState(BaseModel):
@@ -25,18 +25,25 @@ class PEMassAnalysisFlow(Flow[PEMassAnalysisState]):
         self.state.previous_analyses = []
         self.state.max_rounds = 3
 
-    @listen(initialize_round)
-    def run_pe_script(self):
-        """Run the parameter estimation script to generate a new PE report."""
+    def _run_pe_script_impl_method(self):
+        """Internal implementation for running the PE script."""
+        # Only run if we haven't exceeded max rounds
+        if self.state.round_number > self.state.max_rounds:
+            return
+            
         print(f"Running parameter estimation script for round {self.state.round_number}")
-        result = run_pe_script("/home/sgoode/BRUCE/run_pe.py")
+        result = _run_pe_script_impl("/home/sgoode/BRUCE/run_pe.py")
         print(f"PE script result: {result}")
         # The report should be at the standard location
         self.state.pe_report_path = "/home/sgoode/BRUCE/results/bruce_pe_report.md"
 
-    @listen(run_pe_script)
-    def analyze_mass_posteriors(self):
-        """Have the mass expert analyze the PE report and write analysis."""
+    @listen(initialize_round)
+    def run_pe_script(self):
+        """Run the parameter estimation script to generate a new PE report."""
+        self._run_pe_script_impl_method()
+
+    def _analyze_mass_posteriors_impl(self):
+        """Internal implementation for analyzing mass posteriors."""
         print(f"Analyzing mass posteriors for round {self.state.round_number}")
         
         # Prepare inputs for the crew
@@ -67,19 +74,57 @@ class PEMassAnalysisFlow(Flow[PEMassAnalysisState]):
         # Add this analysis to the list of previous analyses
         self.state.previous_analyses.append(analysis_file_path)
 
-    @listen(analyze_mass_posteriors)
-    def check_and_continue(self):
-        """Check if we should continue to the next round."""
+    @listen(run_pe_script)
+    def analyze_mass_posteriors(self):
+        """Have the mass expert analyze the PE report and write analysis."""
+        self._analyze_mass_posteriors_impl()
+
+    def _check_and_continue_impl(self):
+        """Internal implementation for checking and continuing to next round."""
         print(f"Completed round {self.state.round_number} of {self.state.max_rounds}")
         
         if self.state.round_number < self.state.max_rounds:
-            # Increment round number and trigger the next iteration
+            # Increment round number - this will trigger run_pe_script_from_continue via @listen decorator
             self.state.round_number += 1
             print(f"Continuing to round {self.state.round_number}")
-            # Directly call the next step to continue the loop
-            self.run_pe_script()
+            # The flow will automatically continue to run_pe_script_from_continue because it listens to this method
         else:
             print(f"All {self.state.max_rounds} rounds completed!")
+
+    @listen(analyze_mass_posteriors)
+    def check_and_continue(self):
+        """Check if we should continue to the next round."""
+        self._check_and_continue_impl()
+
+    @listen(check_and_continue)
+    def run_pe_script_from_continue(self):
+        """Run PE script when continuing from check_and_continue."""
+        self._run_pe_script_impl_method()
+
+    @listen(run_pe_script_from_continue)
+    def analyze_mass_posteriors_from_continue(self):
+        """Analyze mass posteriors when continuing from run_pe_script_from_continue."""
+        self._analyze_mass_posteriors_impl()
+
+    @listen(analyze_mass_posteriors_from_continue)
+    def check_and_continue_from_continue(self):
+        """Check and continue when continuing from analyze_mass_posteriors_from_continue."""
+        self._check_and_continue_impl()
+
+    @listen(check_and_continue_from_continue)
+    def run_pe_script_from_continue_loop(self):
+        """Run PE script when continuing from check_and_continue_from_continue (for rounds 3+)."""
+        self._run_pe_script_impl_method()
+
+    @listen(run_pe_script_from_continue_loop)
+    def analyze_mass_posteriors_from_continue_loop(self):
+        """Analyze mass posteriors when continuing from run_pe_script_from_continue_loop."""
+        self._analyze_mass_posteriors_impl()
+
+    @listen(analyze_mass_posteriors_from_continue_loop)
+    def check_and_continue_from_continue_loop(self):
+        """Check and continue when continuing from analyze_mass_posteriors_from_continue_loop."""
+        self._check_and_continue_impl()
 
 
 def kickoff():

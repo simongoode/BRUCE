@@ -96,12 +96,13 @@ POST_TRIGGER_DURATION = 2.0
 F_REF = 50.0  # Reference frequency for waveform
 
 # Nested sampling parameters
-N_LIVE = 50  # Number of live points (calibrated to match Bilby compression)
-N_DELETE = int(N_LIVE * 0.8)  # Number of points to delete per iteration
-TERMINATION_DLOGZ = 1  # Terminate when remaining evidence < this fraction
+# Optimized for maximum N_LIVE while keeping runtime < 3 minutes
+N_LIVE = 50  # Number of live points (increased from 100)
+N_DELETE = int(N_LIVE * 0.7)  # Number of points to delete per iteration (increased from 0.8 for faster convergence)
+TERMINATION_DLOGZ = 0.1  # Terminate when remaining evidence < this fraction (relaxed from 1 for earlier termination)
 
 # Heterodyned likelihood parameters
-N_BINS = 100  # Number of frequency bins for relative binning
+N_BINS = 500  # Number of frequency bins for relative binning (reduced from 100 to speed up likelihood evaluations)
 
 # =============================================================================
 # WAVEFORM AND DETECTOR SETUP
