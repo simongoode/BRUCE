@@ -31,10 +31,25 @@ class ParameterExpertCrew:
             verbose=True,
         )
 
+    @agent
+    def distance_expert(self) -> Agent:
+        return Agent(
+            config=self.agents_config["distance_expert"],  # type: ignore[index]
+            tools=[read_analysis_file, write_file],
+            llm=llm,
+            verbose=True,
+        )
+
     @task
     def analyze_mass_posteriors(self) -> Task:
         return Task(
             config=self.tasks_config["analyze_mass_posteriors"],  # type: ignore[index]
+        )
+
+    @task
+    def analyze_distance_posteriors(self) -> Task:
+        return Task(
+            config=self.tasks_config["analyze_distance_posteriors"],  # type: ignore[index]
         )
 
     @crew

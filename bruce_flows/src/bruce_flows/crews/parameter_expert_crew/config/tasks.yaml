@@ -1,23 +1,75 @@
 analyze_mass_posteriors:
   description: >
-    You are analyzing gravitational wave parameter estimation results for round {round_number}.
+    TASK: Analyze mass posteriors and write a 2-3 sentence analysis to a file.
     
-    First, use the read_analysis_file tool to read the current PE report at {pe_report_path}
-    to understand the mass posteriors (M_c, q, m_1, m_2, chi_eff, eta) and their summary statistics.
+    STEP 1: Read the PE report
+    - Use the read_analysis_file tool to read: {pe_report_path}
+    - Focus ONLY on the "Summary Statistics" section
+    - IGNORE the CSV data section completely - do NOT read it, do NOT output it
+    - Extract key statistics for: M_c, q, m_1, m_2, chi_eff, eta
     
+    STEP 2: Read previous analyses (if any)
     {previous_analyses}
+    - If files are listed above, use read_analysis_file to read each one
+    - Note any trends or changes across rounds
     
-    If there are previous analysis files listed above, use the read_analysis_file tool to read
-    them and incorporate insights from previous rounds into your analysis.
+    STEP 3: Write your analysis
+    - Compose exactly 2-3 sentences covering:
+      * Key characteristics of mass posteriors in this round
+      * Notable trends/patterns (include 90% credible intervals when quoting parameters)
+      * Comparison with previous rounds (if available)
+    - Your analysis text should be professional and concise
     
-    Write a concise 2-3 sentence analysis focusing on:
-    - Key characteristics of the mass posteriors in this round
-    - Notable trends or patterns in the mass parameters
-    - Comparison with previous rounds (if available)
+    STEP 4: Save to file (REQUIRED - THIS IS YOUR FINAL STEP)
+    - You MUST call the write_file tool
+    - file_path parameter: {analysis_file_path}
+    - content parameter: Your 2-3 sentence analysis text (ONLY the analysis, nothing else)
+    - Do NOT include CSV data, raw numbers, or any other content
     
-    IMPORTANT: You must use the write_file tool to save your analysis to: {analysis_file_path}
-    The analysis should be exactly 2-3 sentences. Use the write_file tool with the file_path
-    parameter set to {analysis_file_path} and the content parameter containing your analysis.
+    CRITICAL RULES:
+    - Do NOT output CSV data to the console or in your response
+    - Do NOT reproduce the PE report content
+    - Your ONLY output should be calling the write_file tool with your analysis
+    - The write_file tool call is how you complete this task
   expected_output: >
-    A 2-3 sentence analysis of the mass posteriors saved to {analysis_file_path} using the write_file tool
+    The write_file tool must be called successfully, saving a 2-3 sentence analysis to {analysis_file_path}.
+    The file must contain ONLY the analysis text, with no CSV data or raw numbers.
   agent: mass_expert
+
+analyze_distance_posteriors:
+  description: >
+    TASK: Analyze distance posteriors and write a 2-3 sentence analysis to a file.
+    
+    STEP 1: Read the PE report
+    - Use the read_analysis_file tool to read: {pe_report_path}
+    - Focus ONLY on the "Summary Statistics" section
+    - IGNORE the CSV data section completely - do NOT read it, do NOT output it
+    - Extract key statistics for: d_L, iota, and related distance parameters
+    
+    STEP 2: Read previous analyses (if any)
+    {previous_analyses}
+    - If files are listed above, use read_analysis_file to read each one
+    - Note any trends or changes across rounds
+    
+    STEP 3: Write your analysis
+    - Compose exactly 2-3 sentences covering:
+      * Key characteristics of distance posteriors in this round
+      * Notable trends/patterns (include 90% credible intervals when quoting parameters)
+      * Comparison with previous rounds (if available)
+    - Your analysis text should be professional and concise
+    
+    STEP 4: Save to file (REQUIRED - THIS IS YOUR FINAL STEP)
+    - You MUST call the write_file tool
+    - file_path parameter: {analysis_file_path}
+    - content parameter: Your 2-3 sentence analysis text (ONLY the analysis, nothing else)
+    - Do NOT include CSV data, raw numbers, or any other content
+    
+    CRITICAL RULES:
+    - Do NOT output CSV data to the console or in your response
+    - Do NOT reproduce the PE report content
+    - Your ONLY output should be calling the write_file tool with your analysis
+    - The write_file tool call is how you complete this task
+  expected_output: >
+    The write_file tool must be called successfully, saving a 2-3 sentence analysis to {analysis_file_path}.
+    The file must contain ONLY the analysis text, with no CSV data or raw numbers.
+  agent: distance_expert
