@@ -11,10 +11,14 @@ from bruce_flows.tools.run_pe_tool import _run_pe_script_impl
 
 
 class PEMassAnalysisState(BaseModel):
+    """
+    State for the PE Mass Analysis Flow.
+    Assumes cwd is bruce_flows/ (i.e., run via 'crewai run' from bruce_flows/).
+    """
     round_number: int = 1
     previous_analyses: List[str] = []  # Previous mass expert analyses
     previous_distance_analyses: List[str] = []  # Previous distance expert analyses
-    pe_report_path: str = "/home/sgoode/BRUCE/results/bruce_pe_report.md"
+    pe_report_path: str = "results/bruce_pe_report.md"
     max_rounds: int = 3
 
 
@@ -36,10 +40,10 @@ class PEMassAnalysisFlow(Flow[PEMassAnalysisState]):
             return
             
         print(f"Running parameter estimation script for round {self.state.round_number}")
-        result = _run_pe_script_impl("/home/sgoode/BRUCE/run_pe.py")
+        result = _run_pe_script_impl()  # Uses default relative path
         print(f"PE script result: {result}")
         # The report should be at the standard location
-        self.state.pe_report_path = "/home/sgoode/BRUCE/results/bruce_pe_report.md"
+        self.state.pe_report_path = "results/bruce_pe_report.md"
 
     @listen(initialize_round)
     def run_pe_script(self):
@@ -50,8 +54,8 @@ class PEMassAnalysisFlow(Flow[PEMassAnalysisState]):
         """Internal implementation for analyzing mass posteriors."""
         print(f"Analyzing mass posteriors for round {self.state.round_number}")
         
-        # Prepare inputs for the crew
-        analysis_file_path = f"/home/sgoode/BRUCE/results/mass-expert-report-round-{self.state.round_number}.txt"
+        # Prepare inputs for the crew (path relative to bruce_flows/ cwd)
+        analysis_file_path = f"results/mass-expert-report-round-{self.state.round_number}.txt"
         
         # Build context with previous analyses
         previous_analyses_context = ""
@@ -96,8 +100,8 @@ class PEMassAnalysisFlow(Flow[PEMassAnalysisState]):
         """Internal implementation for analyzing distance posteriors."""
         print(f"Analyzing distance posteriors for round {self.state.round_number}")
         
-        # Prepare inputs for the crew
-        analysis_file_path = f"/home/sgoode/BRUCE/results/distance-expert-report-round-{self.state.round_number}.txt"
+        # Prepare inputs for the crew (path relative to bruce_flows/ cwd)
+        analysis_file_path = f"results/distance-expert-report-round-{self.state.round_number}.txt"
         
         # Build context with previous analyses
         previous_analyses_context = ""

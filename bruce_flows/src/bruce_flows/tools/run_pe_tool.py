@@ -1,22 +1,28 @@
 import subprocess
 import os
+import sys
 from crewai.tools import tool
 
 
-def _run_pe_script_impl(script_path: str = "/home/sgoode/BRUCE/run_pe.py") -> str:
+def _run_pe_script_impl(script_path: str = None) -> str:
     """
     Internal implementation for running the parameter estimation script.
     This can be called directly from flow code.
+    Assumes cwd is bruce_flows/ (i.e., run via 'crewai run' from bruce_flows/).
     """
     try:
+        # If no script path provided, use default relative path from bruce_flows/ cwd
+        if script_path is None:
+            script_path = "src/scripts/run_pe.py"
+        
         # Ensure the script path is valid
         if not os.path.exists(script_path):
             return f"Error: Script not found at path: {script_path}"
 
         # Execute the script using subprocess
-        # Use the virtual environment Python interpreter
+        # Use the current Python interpreter
         result = subprocess.run(
-            ['/home/sgoode/BRUCE/.venv/bin/python', script_path],
+            [sys.executable, script_path],
             capture_output=True,
             text=True,
             check=True,
@@ -24,7 +30,9 @@ def _run_pe_script_impl(script_path: str = "/home/sgoode/BRUCE/run_pe.py") -> st
         )
 
         # Check if the expected output file was created
-        expected_output = '/home/sgoode/BRUCE/results/bruce_pe_report.md'
+        # Path relative to bruce_flows/ cwd
+        expected_output = "results/bruce_pe_report.md"
+        
         if os.path.exists(expected_output):
             return f"Successfully ran parameter estimation script. Report generated at: {expected_output}"
         else:
@@ -44,14 +52,16 @@ def _run_pe_script_impl(script_path: str = "/home/sgoode/BRUCE/run_pe.py") -> st
 
 
 @tool("Parameter Estimation Script Runner")
-def run_pe_script(script_path: str = "/home/sgoode/BRUCE/run_pe.py") -> str:
+def run_pe_script(script_path: str = None) -> str:
     """
     Executes the parameter estimation script (run_pe.py) to generate a PE report.
-    The script generates a markdown report at '/home/sgoode/BRUCE/results/bruce_pe_report.md'.
+    The script generates a markdown report at 'results/bruce_pe_report.md'.
+    
+    Assumes cwd is bruce_flows/ (i.e., run via 'crewai run' from bruce_flows/).
 
     Args:
-        script_path (str): The path to the run_pe.py script. Defaults to
-                          '/home/sgoode/BRUCE/run_pe.py'.
+        script_path (str, optional): The path to the run_pe.py script relative to bruce_flows/.
+                          If None, defaults to 'src/scripts/run_pe.py'.
 
     Returns:
         str: Success message with the path to the generated report, or an error message
