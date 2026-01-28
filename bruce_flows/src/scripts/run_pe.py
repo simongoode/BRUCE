@@ -57,6 +57,18 @@ Date: 2025
 
 # Memory configuration
 import os
+import sys
+
+# Add bruce_flows directory to Python path so we can import blackjax_ns_gw
+# Assumes cwd is bruce_flows/ when running 'crewai run'
+if os.getcwd().endswith('bruce_flows'):
+    sys.path.insert(0, os.getcwd())
+else:
+    # Fallback: add parent directory if running from different location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    bruce_flows_dir = os.path.abspath(os.path.join(script_dir, '../..'))
+    sys.path.insert(0, bruce_flows_dir)
+
 os.environ["XLA_PYTHON_CLIENT_MEM_FRACTION"] = "0.6"
 os.environ["XLA_PYTHON_CLIENT_PREALLOCATE"] = "false"
 
@@ -141,12 +153,13 @@ injection_params["eta"] = injection_params["q"] / (1 + injection_params["q"]) **
 # =============================================================================
 
 # Load detector data as JAX arrays
-abs_path = '/home/sgoode/BRUCE/blackjax_ns_gw/src/'
+# Paths are relative to bruce_flows/ (cwd when running 'crewai run')
+data_path = 'blackjax_ns_gw/src/'
 detector_data = {
-    'frequencies': jnp.array(np.load(abs_path+'4s_frequency_array.npy')),
-    'H1': jnp.array(np.load(abs_path+'4s_H1_strain.npy')),
-    'L1': jnp.array(np.load(abs_path+'4s_L1_strain.npy')),
-    'V1': jnp.array(np.load(abs_path+'4s_V1_strain.npy'))
+    'frequencies': jnp.array(np.load(os.path.join(data_path, '4s_frequency_array.npy'))),
+    'H1': jnp.array(np.load(os.path.join(data_path, '4s_H1_strain.npy'))),
+    'L1': jnp.array(np.load(os.path.join(data_path, '4s_L1_strain.npy'))),
+    'V1': jnp.array(np.load(os.path.join(data_path, '4s_V1_strain.npy')))
 }
 
 # Configure detector frequency range
@@ -620,6 +633,10 @@ Use this data to analyze correlations (e.g., Mass-Spin degeneracy).
 {csv_string}
 """
 
-output_filename = '/home/sgoode/BRUCE/results/bruce_pe_report.md'
+# Paths are relative to bruce_flows/ (cwd when running 'crewai run')
+results_dir = 'results'
+# Ensure results directory exists
+os.makedirs(results_dir, exist_ok=True)
+output_filename = os.path.join(results_dir, 'bruce_pe_report.md')
 with open(output_filename, 'w') as f: f.write(report)
 print(f"LLM-ready report saved to: {output_filename}")
