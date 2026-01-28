@@ -12,3 +12,4 @@ getdist
 tqdm
 bilby
 corner
+crewai
