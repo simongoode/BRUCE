@@ -9,7 +9,7 @@ from bruce_flows.tools.write_file_tool import write_file
 
 # Define the LLM to be used by the agents
 # Using Gemini flash-2.5 for fast, cost-effective analysis
-llm = LLM(model="google/gemini-2.5-flash", temperature=0.2)
+llm = LLM(model="google/gemini-3-flash", temperature=0.2)
 
 
 @CrewBase
