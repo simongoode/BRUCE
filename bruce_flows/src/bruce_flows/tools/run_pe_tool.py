@@ -20,13 +20,29 @@ def _run_pe_script_impl(script_path: str = None) -> str:
             return f"Error: Script not found at path: {script_path}"
 
         # Execute the script using subprocess
-        # Use the current Python interpreter
+        # Use the current Python interpreter and explicitly set PYTHONPATH
+        env = os.environ.copy()
+        
+        # Ensure PYTHONPATH includes the directories where packages are installed
+        python_paths = [
+            '/app/bruce_flows/src',
+            '/app',
+            '/usr/local/lib/python3.11/dist-packages',
+        ]
+        
+        # Add existing PYTHONPATH if present
+        if 'PYTHONPATH' in env:
+            python_paths.append(env['PYTHONPATH'])
+        
+        env['PYTHONPATH'] = ':'.join(python_paths)
+        
         result = subprocess.run(
             [sys.executable, script_path],
             capture_output=True,
             text=True,
             check=True,
-            encoding='utf-8'
+            encoding='utf-8',
+            env=env
         )
 
         # Check if the expected output file was created

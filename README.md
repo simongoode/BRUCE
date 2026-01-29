@@ -1,12 +1,80 @@
 # BRUCE
 
-**B**ayesian **R**econstruction **U**sing **C**omputer intelli**E**ncE
+**B**ayesian **R**econstruction **U**sing **C**omputer intellig**E**ncE
 
 A Python pipeline for automated Bayesian parameter estimation, specialized for gravitational wave data analysis using AI agents powered by CrewAI.
 
 ## Overview
 
 BRUCE combines advanced gravitational wave parameter estimation with AI-powered analysis agents. The system uses CrewAI flows to orchestrate multiple rounds of parameter estimation and expert analysis, providing insights into mass and distance posteriors from gravitational wave signals.
+
+## Quick Start with Docker 🐳
+
+The easiest way to get started with BRUCE is using Docker. This provides a pre-configured environment with all dependencies including CUDA support.
+
+### Prerequisites
+- Docker and Docker Compose installed
+- NVIDIA Docker runtime (for GPU support)
+- NVIDIA GPU with CUDA 12.x support
+- Google API key ([get one here](https://aistudio.google.com/app/apikey))
+
+### Installation Steps
+
+1. **Clone the repository:**
+```bash
+git clone https://github.com/simongoode/BRUCE.git
+cd BRUCE
+```
+
+2. **Create your API key file:**
+```bash
+echo "GOOGLE_API_KEY=your_api_key_here" > bruce_flows/.env
+```
+
+3. **Build and run:**
+```bash
+docker-compose up --build
+```
+
+That's it! The container will:
+- Install all dependencies automatically
+- Initialize git submodules
+- Run the BRUCE analysis flow
+- Save results to `bruce_flows/results/` on your host machine
+
+**📚 Docker Documentation:**
+- [DOCKER_SETUP.md](DOCKER_SETUP.md) - Complete setup guide
+- [VERIFY_DOCKER.md](VERIFY_DOCKER.md) - Test your installation
+- [DOCKER_QUICKREF.md](DOCKER_QUICKREF.md) - Common commands
+- [DISTRIBUTION.md](DISTRIBUTION.md) - Share with your team
+
+### Development Workflow
+
+The Docker setup mounts your source code, so you can edit files normally:
+
+1. Edit any Python file in `bruce_flows/src/`
+2. Run the analysis again:
+```bash
+docker-compose run bruce crewai run
+```
+
+No rebuild needed - changes are immediately available!
+
+### Additional Commands
+
+```bash
+# Run a shell inside the container
+docker-compose run bruce bash
+
+# Run a specific script
+docker-compose run bruce python src/scripts/run_pe.py
+
+# Stop and remove containers
+docker-compose down
+
+# Rebuild after dependency changes
+docker-compose build
+```
 
 ## Project Structure
 
@@ -28,13 +96,16 @@ BRUCE/
 └── requirements.txt          # Python dependencies
 ```
 
-## Installation
+## Manual Installation
+
+If you prefer not to use Docker, you can install BRUCE manually.
 
 ### Prerequisites
 
-- Python 3.10 - 3.13
+- Python 3.10 - 3.13 (3.11.14 recommended)
 - Git
 - CUDA-capable GPU (recommended for parameter estimation)
+- CUDA Toolkit 12.x
 
 ### Step 1: Clone the Repository
 
@@ -149,6 +220,41 @@ The BRUCE flow consists of:
 4. **Iterative Refinement**: Multiple rounds of analysis build on previous insights
 
 ## Troubleshooting
+
+### Docker Issues
+
+#### GPU not detected
+If you see errors about CUDA or GPU not being available:
+
+1. Verify NVIDIA Docker runtime is installed:
+```bash
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+```
+
+2. If the above fails, install NVIDIA Container Toolkit:
+```bash
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo systemctl restart docker
+```
+
+#### Permission denied errors
+If you get permission errors with Docker:
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+#### Container exits immediately
+Check your `.env` file exists and contains a valid Google API key:
+```bash
+cat bruce_flows/.env
+```
 
 ### NumPy Version Issues
 
