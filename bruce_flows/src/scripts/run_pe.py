@@ -618,6 +618,12 @@ report = f"""
 Run Status: Completed
 Total Posterior Samples: {len(stats_samples)}
 
+**INSTRUCTIONS FOR AI AGENTS**: 
+- Analyze the Summary Statistics table and optionally the CSV data below
+- Write ONLY a concise 2-3 sentence analysis
+- DO NOT reproduce, quote, or output any CSV data in your response
+- Focus on insights and trends, not raw data reproduction
+
 ## Summary Statistics (Median and 90% Credible Intervals)
 | Parameter | 5th % | Median | 95th % | Best Fit (MaxL) |
 |:---|:---|:---|:---|:---|
