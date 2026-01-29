@@ -42,37 +42,22 @@ That's it! The container will:
 - Run the BRUCE analysis flow
 - Save results to `bruce_flows/results/` on your host machine
 
-**📚 Docker Documentation:**
-- [DOCKER_SETUP.md](DOCKER_SETUP.md) - Complete setup guide
-- [VERIFY_DOCKER.md](VERIFY_DOCKER.md) - Test your installation
-- [DOCKER_QUICKREF.md](DOCKER_QUICKREF.md) - Common commands
-- [DISTRIBUTION.md](DISTRIBUTION.md) - Share with your team
-
 ### Development Workflow
 
-The Docker setup mounts your source code, so you can edit files normally:
+The Docker setup mounts your source code, so you can edit files normally and re-run without rebuilding:
 
-1. Edit any Python file in `bruce_flows/src/`
-2. Run the analysis again:
 ```bash
+# Edit any Python file in bruce_flows/src/
+# Then run again (no rebuild needed):
 docker-compose run bruce crewai run
-```
 
-No rebuild needed - changes are immediately available!
-
-### Additional Commands
-
-```bash
-# Run a shell inside the container
+# Run a shell inside the container:
 docker-compose run bruce bash
 
-# Run a specific script
-docker-compose run bruce python src/scripts/run_pe.py
-
-# Stop and remove containers
+# Stop and remove containers:
 docker-compose down
 
-# Rebuild after dependency changes
+# Rebuild after dependency changes:
 docker-compose build
 ```
 
