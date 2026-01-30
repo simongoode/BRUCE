@@ -61,6 +61,143 @@ docker-compose down
 docker-compose build
 ```
 
+## Quick Start with Apptainer (Remote Servers/HPC) 🚀
+
+BRUCE can be easily deployed on remote servers and HPC clusters using Apptainer (formerly Singularity). The container image is automatically built and published to GitHub Container Registry on every push to main.
+
+**Important:** All Apptainer commands should be run from the `bruce_flows/` directory to match the expected working directory structure.
+
+### Prerequisites
+- Apptainer/Singularity installed on the remote server
+- NVIDIA GPU with CUDA support (optional but recommended)
+- Network access to pull from GitHub Container Registry
+- Google API key ([get one here](https://aistudio.google.com/app/apikey))
+
+### Installation Steps
+
+1. **Clone the repository and navigate to bruce_flows:**
+```bash
+git clone https://github.com/simongoode/BRUCE.git
+cd BRUCE/bruce_flows
+```
+
+2. **Pull the container image:**
+```bash
+# Pull the latest BRUCE image from GitHub Container Registry
+apptainer pull docker://ghcr.io/simongoode/bruce:latest
+
+# This creates a file: bruce_latest.sif in the bruce_flows directory
+```
+
+3. **Set up your API key:**
+```bash
+# Create your API key file in the bruce_flows directory
+echo "GOOGLE_API_KEY=your_api_key_here" > .env
+```
+
+4. **Run BRUCE:**
+```bash
+# Basic run with GPU support (from bruce_flows directory)
+apptainer exec --nv \
+  --bind ./results:/app/bruce_flows/results \
+  --env-file .env \
+  bruce_latest.sif crewai run
+
+# Results will appear in ./results/
+```
+
+### Usage Examples
+
+**All commands should be run from the `bruce_flows/` directory.**
+
+**Get an interactive shell:**
+```bash
+cd bruce_flows
+apptainer shell --nv \
+  --bind ./results:/app/bruce_flows/results \
+  --env-file .env \
+  bruce_latest.sif
+
+# Inside the container:
+crewai run
+```
+
+**Run without GPU (CPU only):**
+```bash
+cd bruce_flows
+# Omit the --nv flag
+apptainer exec \
+  --bind ./results:/app/bruce_flows/results \
+  --env-file .env \
+  bruce_latest.sif crewai run
+```
+
+### SLURM Integration
+
+For HPC clusters using SLURM, create a job script in the `bruce_flows/` directory:
+
+```bash
+#!/bin/bash
+#SBATCH --job-name=bruce_analysis
+#SBATCH --time=24:00:00
+#SBATCH --gpus=1
+#SBATCH --mem=32G
+#SBATCH --cpus-per-task=8
+
+# Load Apptainer module (if required)
+module load apptainer
+
+# Navigate to bruce_flows directory
+cd $SLURM_SUBMIT_DIR
+
+# Run BRUCE (assumes bruce_latest.sif and .env are in bruce_flows/)
+apptainer exec --nv \
+  --bind ./results:/app/bruce_flows/results \
+  --env-file .env \
+  bruce_latest.sif crewai run
+```
+
+Submit from the `bruce_flows/` directory:
+```bash
+cd bruce_flows
+sbatch bruce_job.sh
+```
+
+### Updating the Container
+
+To get the latest version after updates to the main branch:
+
+```bash
+# Remove old image
+rm bruce_latest.sif
+
+# Pull new version
+apptainer pull docker://ghcr.io/simongoode/bruce:latest
+```
+
+### Offline Installation
+
+For systems without internet access on compute nodes:
+
+1. **On a machine with internet access:**
+```bash
+# Pull and save the image
+apptainer pull docker://ghcr.io/simongoode/bruce:latest
+
+# Transfer bruce_latest.sif to the remote server's bruce_flows directory
+scp bruce_latest.sif user@remote-server:~/BRUCE/bruce_flows/
+```
+
+2. **On the remote server:**
+```bash
+# Navigate to bruce_flows and use the transferred .sif file
+cd ~/BRUCE/bruce_flows
+apptainer exec --nv \
+  --bind ./results:/app/bruce_flows/results \
+  --env-file .env \
+  bruce_latest.sif crewai run
+```
+
 ## Project Structure
 
 ```
@@ -260,6 +397,36 @@ If you see `ModuleNotFoundError: No module named 'blackjax_ns_gw'`, ensure:
 For CUDA-related errors, verify:
 - CUDA toolkit is installed (version 12.x recommended)
 - JAX CUDA installation: `pip install --upgrade "jax[cuda12_pip]>=0.4.31"`
+
+### Apptainer Issues
+
+#### GPU not detected in Apptainer
+Ensure you're using the `--nv` flag:
+```bash
+apptainer exec --nv bruce_latest.sif nvidia-smi
+```
+
+If that fails, verify NVIDIA drivers are installed on the host:
+```bash
+nvidia-smi
+```
+
+#### Permission denied on HPC systems
+Some HPC systems require specific bind paths. Check with your system administrator or try:
+```bash
+apptainer exec --nv \
+  --bind $HOME \
+  --bind /scratch \
+  bruce_latest.sif crewai run
+```
+
+#### Container cannot write to results directory
+Ensure you're running from the `bruce_flows/` directory. The results directory will be created automatically by Apptainer when binding. If you encounter permission issues:
+```bash
+cd bruce_flows
+mkdir -p results
+chmod 755 results
+```
 
 ## Contributing
 

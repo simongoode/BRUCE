@@ -48,7 +48,7 @@ RUN if [ ! -d "bruce_flows/blackjax_ns_gw/src" ]; then \
 RUN pip install --no-cache-dir -e bruce_flows/
 
 # Set PYTHONPATH to ensure all packages are findable in subprocesses
-ENV PYTHONPATH="/app/bruce_flows/src:${PYTHONPATH}"
+ENV PYTHONPATH="/app/bruce_flows/src${PYTHONPATH:+:${PYTHONPATH}}"
 
 # Set the working directory to bruce_flows for running crewai commands
 WORKDIR /app/bruce_flows
