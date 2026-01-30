@@ -1,7 +1,7 @@
-.gitmodules
 .venv/
 results/
 analyst_test/
 gemini-test.py
 __pycache__/
 default_flow/
+docker-build.log

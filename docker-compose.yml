@@ -1,0 +1,46 @@
+services:
+  bruce:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: bruce:latest
+    container_name: bruce-dev
+    
+    # Enable GPU support
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    
+    # Mount source code for live development
+    volumes:
+      # Mount the entire source tree for editing
+      - ./bruce_flows/src:/app/bruce_flows/src
+      - ./bruce_flows/blackjax_ns_gw:/app/bruce_flows/blackjax_ns_gw
+      
+      # Mount results directory to persist outputs
+      - ./bruce_flows/results:/app/bruce_flows/results
+      
+      # Mount environment file
+      - ./bruce_flows/.env:/app/bruce_flows/.env
+    
+    # Set working directory
+    working_dir: /app/bruce_flows
+    
+    # Keep container running and allow interactive sessions
+    stdin_open: true
+    tty: true
+    
+    # Default command
+    command: crewai run
+    
+    # Environment variables (can also be loaded from .env file)
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/app/bruce_flows/src:/app
+
+# Note: Make sure you have created bruce_flows/.env with your GOOGLE_API_KEY
+# before running: echo "GOOGLE_API_KEY=your_key_here" > bruce_flows/.env
